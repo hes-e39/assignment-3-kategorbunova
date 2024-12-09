@@ -3,10 +3,11 @@ import { createRoot } from 'react-dom/client';
 import { NavLink, Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
 
 import './index.css';
+import { ErrorBoundary } from 'react-error-boundary';
 import AddTimersView from './views/AddTimersView';
-import DocumentationView from './views/DocumentationView';
 import { TimersProvider } from './views/TimerProvider';
 import TimersView from './views/TimersView';
+import WorkoutHistoryView from './views/WorkoutsHistoryView';
 
 const PageIndex = () => {
     return (
@@ -26,6 +27,11 @@ const PageIndex = () => {
                 <li>
                     <NavLink to="/add" style={({ isActive }) => linkStyle(isActive)}>
                         Edit Your Workout
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/history" style={({ isActive }) => linkStyle(isActive)}>
+                        Completed Workouts
                     </NavLink>
                 </li>
             </ul>
@@ -72,23 +78,36 @@ const router = createHashRouter([
                 index: true,
                 element: <TimersView />,
             },
-            {
-                path: '/docs',
-                element: <DocumentationView />,
-            },
+            // {
+            //     path: '/docs',
+            //     element: <DocumentationView />,
+            // },
             {
                 path: '/add',
                 element: <AddTimersView />,
             },
+            {
+                path: '/history',
+                element: <WorkoutHistoryView />,
+            },
         ],
     },
 ]);
+const FallbackComponent = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
+    <div>
+        <h2>Something went wrong!</h2>
+        <pre>{error.message}</pre>
+        <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+);
 
 // biome-ignore lint/style/noNonNullAssertion: root html element is there
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <TimersProvider>
-            <RouterProvider router={router} />
-        </TimersProvider>
+        <ErrorBoundary FallbackComponent={FallbackComponent}>
+            <TimersProvider>
+                <RouterProvider router={router} />
+            </TimersProvider>
+        </ErrorBoundary>
     </StrictMode>,
 );

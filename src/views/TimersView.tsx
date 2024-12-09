@@ -1,5 +1,4 @@
 import { useContext, useEffect } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router-dom'; // Make sure to import Link
 import Countdown from '../components/timers/Countdown';
 import Stopwatch from '../components/timers/Stopwatch';
@@ -23,14 +22,6 @@ interface TimerProps {
     isFinished: boolean;
     onFinish: () => void;
 }
-
-const FallbackComponent = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
-    <div>
-        <h2>Something went wrong:</h2>
-        <pre>{error.message}</pre>
-        <button onClick={resetErrorBoundary}>Try again</button>
-    </div>
-);
 
 const TimersView = () => {
     const { timersArray, resetTimers, totalQueueSeconds, totalSecondsPassed, setTotalSecondsPassed, currentTimerIndex, setCurrentTimerIndex, statusQueue, setStatusQueue, editTimer } =
@@ -78,19 +69,12 @@ const TimersView = () => {
 
     const totalSecondsLeft = totalQueueSeconds - totalSecondsPassed;
     return (
-        <ErrorBoundary FallbackComponent={FallbackComponent}>
-            <div style={{ textAlign: 'left', paddingTop: '2rem', paddingLeft: '5rem', display: 'flex', gap: '4rem' }}>
-                <div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                        <YourWorkoutList
-                            timersArray={timersArray}
-                            totalQueueSeconds={totalQueueSeconds}
-                            totalSecondsPassed={totalSecondsPassed}
-                            currentTimerIndex={currentTimerIndex}
-                            isEditing={false}
-                        />
+        <div style={{ textAlign: 'left', paddingTop: '2rem', paddingLeft: '5rem', display: 'flex', gap: '4rem' }}>
+            <div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <YourWorkoutList timersArray={timersArray} totalQueueSeconds={totalQueueSeconds} totalSecondsPassed={totalSecondsPassed} currentTimerIndex={currentTimerIndex} isEditing={false} />
 
-                        {/* <div style={{ background: 'lightgrey', borderRadius: '10px', padding: '2rem 3rem', minWidth: '25rem' }}>
+                    {/* <div style={{ background: 'lightgrey', borderRadius: '10px', padding: '2rem 3rem', minWidth: '25rem' }}>
                         <h2>Your Workout</h2>
                         <SupportText>
                             Total Time: {Math.floor(totalQueueSeconds / 60)} min {totalQueueSeconds % 60} sec
@@ -127,90 +111,89 @@ const TimersView = () => {
                             })}
                         </ol>
                     </div> */}
-                    </div>
-                </div>
-
-                <div>
-                    {timersArray.length > 0 && (
-                        <Buttons style={{ justifyContent: 'left' }}>
-                            {totalSecondsPassed !== totalQueueSeconds && (
-                                <Button onClick={startStopQueue} style={{ backgroundColor: statusQueue === STATUS.STARTED ? 'maroon' : 'green' }}>
-                                    {statusQueue === STATUS.STARTED ? 'Pause Queue' : 'Start Queue'}
-                                </Button>
-                            )}
-
-                            {Number(totalSecondsPassed) > 0 && (
-                                <Button onClick={resetQueue} style={{ backgroundColor: 'navy' }}>
-                                    Reset Queue
-                                </Button>
-                            )}
-                        </Buttons>
-                    )}
-                    <h3 style={{ margin: 0 }}>
-                        Time Left: {Math.floor(totalSecondsLeft / 60)} min {totalSecondsLeft % 60} sec{' '}
-                    </h3>
-                    <progress value={totalSecondsPassed / totalQueueSeconds} max="1" style={{ width: '80%', height: '1rem' }} />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%' }}>
-                        <p style={{ margin: 0 }}>
-                            Time Passed: {Math.floor(totalSecondsPassed / 60)} min {totalSecondsPassed % 60} sec
-                        </p>
-                        <p style={{ margin: 0 }}>
-                            Total Time: {Math.floor(totalQueueSeconds / 60)} min {totalQueueSeconds % 60} sec
-                        </p>
-                    </div>
-                    {timersArray.length === 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'grey', padding: '2rem' }}>
-                            <p>
-                                Navigate to the{' '}
-                                <Link to="/add" style={{ color: 'blue', textDecoration: 'underline' }}>
-                                    Add page
-                                </Link>{' '}
-                                to add timers to your queue
-                            </p>
-                        </div>
-                    )}
-
-                    <Timers>
-                        {timersArray.map((timer, index) => {
-                            const matchedTimer = timers.find(t => t.title === timer.title);
-
-                            if (!matchedTimer) {
-                                return null;
-                            }
-
-                            const Timer = matchedTimer.C;
-
-                            return (
-                                <div key={`timer-${index}`}>
-                                    <TimerHeader isActive={index === currentTimerIndex && statusQueue === STATUS.STARTED}>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <div style={{ fontSize: '1.5rem' }}>
-                                                Timer {index + 1}
-                                                {index === currentTimerIndex && ' (Active)'}
-                                                {index < currentTimerIndex && ' (Finished)'}
-                                            </div>
-                                            <div style={{ fontStyle: 'italic' }}>Total seconds: {timer.totalSeconds}</div>
-                                        </div>
-                                    </TimerHeader>
-                                    <Timer
-                                        timeMinInput={timer.timeMinInput}
-                                        timeSecInput={timer.timeSecInput}
-                                        repInput={timer.repInput}
-                                        timeMinInputRest={timer.timeMinInputRest}
-                                        timeSecInputRest={timer.timeSecInputRest}
-                                        totalSeconds={timer.totalSeconds}
-                                        isActive={index === currentTimerIndex && statusQueue === STATUS.STARTED}
-                                        isCurrent={index === currentTimerIndex && statusQueue !== STATUS.INITIAL}
-                                        isFinished={index < currentTimerIndex}
-                                        onFinish={handleTimerFinish}
-                                    />
-                                </div>
-                            );
-                        })}
-                    </Timers>
                 </div>
             </div>
-        </ErrorBoundary>
+
+            <div>
+                {timersArray.length > 0 && (
+                    <Buttons style={{ justifyContent: 'left' }}>
+                        {totalSecondsPassed !== totalQueueSeconds && (
+                            <Button onClick={startStopQueue} style={{ backgroundColor: statusQueue === STATUS.STARTED ? 'maroon' : 'green' }}>
+                                {statusQueue === STATUS.STARTED ? 'Pause Queue' : 'Start Queue'}
+                            </Button>
+                        )}
+
+                        {Number(totalSecondsPassed) > 0 && (
+                            <Button onClick={resetQueue} style={{ backgroundColor: 'navy' }}>
+                                Reset Queue
+                            </Button>
+                        )}
+                    </Buttons>
+                )}
+                <h3 style={{ margin: 0 }}>
+                    Time Left: {Math.floor(totalSecondsLeft / 60)} min {totalSecondsLeft % 60} sec{' '}
+                </h3>
+                <progress value={totalSecondsPassed / totalQueueSeconds} max="1" style={{ width: '80%', height: '1rem' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%' }}>
+                    <p style={{ margin: 0 }}>
+                        Time Passed: {Math.floor(totalSecondsPassed / 60)} min {totalSecondsPassed % 60} sec
+                    </p>
+                    <p style={{ margin: 0 }}>
+                        Total Time: {Math.floor(totalQueueSeconds / 60)} min {totalQueueSeconds % 60} sec
+                    </p>
+                </div>
+                {timersArray.length === 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'grey', padding: '2rem' }}>
+                        <p>
+                            Navigate to the{' '}
+                            <Link to="/add" style={{ color: 'blue', textDecoration: 'underline' }}>
+                                Add page
+                            </Link>{' '}
+                            to add timers to your queue
+                        </p>
+                    </div>
+                )}
+
+                <Timers>
+                    {timersArray.map((timer, index) => {
+                        const matchedTimer = timers.find(t => t.title === timer.title);
+
+                        if (!matchedTimer) {
+                            return null;
+                        }
+
+                        const Timer = matchedTimer.C;
+
+                        return (
+                            <div key={`timer-${index}`}>
+                                <TimerHeader isActive={index === currentTimerIndex && statusQueue === STATUS.STARTED}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ fontSize: '1.5rem' }}>
+                                            Timer {index + 1}
+                                            {index === currentTimerIndex && ' (Active)'}
+                                            {index < currentTimerIndex && ' (Finished)'}
+                                        </div>
+                                        <div style={{ fontStyle: 'italic' }}>Total seconds: {timer.totalSeconds}</div>
+                                    </div>
+                                </TimerHeader>
+                                <Timer
+                                    timeMinInput={timer.timeMinInput}
+                                    timeSecInput={timer.timeSecInput}
+                                    repInput={timer.repInput}
+                                    timeMinInputRest={timer.timeMinInputRest}
+                                    timeSecInputRest={timer.timeSecInputRest}
+                                    totalSeconds={timer.totalSeconds}
+                                    isActive={index === currentTimerIndex && statusQueue === STATUS.STARTED}
+                                    isCurrent={index === currentTimerIndex && statusQueue !== STATUS.INITIAL}
+                                    isFinished={index < currentTimerIndex}
+                                    onFinish={handleTimerFinish}
+                                />
+                            </div>
+                        );
+                    })}
+                </Timers>
+            </div>
+        </div>
     );
 };
 
