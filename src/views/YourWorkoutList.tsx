@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { DisplayRepsForText, DisplayTimeForText } from '../utils/helpers';
+import { DisplayForTime } from '../utils/helpers';
 import { Button, Buttons, SupportText } from '../utils/styles';
 import { TimersContext } from './TimerProvider';
 
@@ -22,19 +23,71 @@ interface WorkoutTimersListProps {
     editTimer: (index: number) => void;
     isSaved: boolean;
     isEditing: boolean;
+    isWorkoutHistory: boolean;
     moveTimerUp: (index: number) => void;
     moveTimerDown: (index: number) => void;
+    workoutTitle: string;
+    setWorkoutTitle: (title: string) => void;
 }
 
-const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({ timersArray, totalQueueSeconds, totalSecondsPassed, currentTimerIndex, editTimer, isSaved, isEditing, moveTimerUp, moveTimerDown }) => {
-    const { editingIndex, addTimerView } = useContext(TimersContext);
+const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
+    timersArray,
+    totalQueueSeconds,
+    totalSecondsPassed,
+    currentTimerIndex,
+    editTimer,
+    isSaved,
+    isWorkoutHistory,
+    isEditing,
+    moveTimerUp,
+    moveTimerDown,
+    workoutTitle,
+}) => {
+    const { editingIndex, addTimerView, statusQueue, showAddView, hideAddView, setIsEditingTitle, isEditingTitle, handleTitleChange } = useContext(TimersContext);
 
     return (
-        <div style={{ backgroundColor: isSaved ? 'green' : 'lightgrey', borderRadius: '10px', padding: '2rem 3rem', minWidth: '25rem', transition: 'background-color 0.5s ease' }}>
-            <h2>Your Workout</h2>
-            <SupportText>
-                Total Time: {Math.floor(totalQueueSeconds / 60)} min {totalQueueSeconds % 60} sec
-            </SupportText>
+        <div
+            style={{
+                background: 'white',
+                padding: '2rem 3rem',
+                transition: 'background-color 0.5s ease',
+                borderRadius: '20px',
+                marginRight: '10px',
+                width: '400px',
+                minHeight: '200px',
+            }}
+        >
+            <div style={{ display: 'flex' }}>
+                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                    {isEditingTitle ? (
+                        <input
+                            type="text"
+                            value={workoutTitle}
+                            onChange={e => handleTitleChange(e.target.value)}
+                            onBlur={() => setIsEditingTitle(false)}
+                            style={{
+                                fontSize: '1.4rem',
+                                fontWeight: 'bold',
+                                background: 'lightgrey',
+                                border: 'none',
+                                outline: 'none',
+                                textAlign: 'center',
+                                width: '100%',
+                            }}
+                        />
+                    ) : (
+                        workoutTitle || 'Your Workout'
+                    )}
+                </div>
+
+                {isEditing && (
+                    <Button onClick={() => setIsEditingTitle(!isEditingTitle)} style={{ marginLeft: '10px', backgroundColor: 'lightgrey', border: 'none' }}>
+                        {isEditingTitle ? 'Save' : 'Edit'}
+                    </Button>
+                )}
+            </div>
+
+            <SupportText>Total Time: {DisplayForTime({ minutesOnTimer: Math.floor(totalQueueSeconds / 60), secondsOnTimer: totalQueueSeconds % 60 })}</SupportText>
             <ol style={{}}>
                 {timersArray.map((timer, index) => {
                     const isStarted = index <= currentTimerIndex;
@@ -46,10 +99,12 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({ timersArray, totalQ
                             style={{
                                 color:
                                     editingIndex === index && addTimerView
-                                        ? 'blue'
-                                        : ((isStarted || isFinished) && timerElapsedTime > 0) || totalSecondsPassed === totalQueueSeconds
-                                          ? 'gray'
-                                          : 'black',
+                                        ? '#D1A974'
+                                        : isStarted && statusQueue === 'Started' && !isFinished
+                                          ? '#3A7D44'
+                                          : (isFinished && statusQueue !== 'Initial' && timerElapsedTime >= 0) || totalSecondsPassed === totalQueueSeconds
+                                            ? 'gray'
+                                            : 'black',
                             }}
                         >
                             <div style={{ display: 'flex' }}>
@@ -60,35 +115,72 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({ timersArray, totalQ
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {timer.title}{' '}
+                                        {DisplayTimeForText(timer.timeMinInput, timer.timeSecInput)}
+                                        {(Number(timer.timeSecInputRest) !== 0 || Number(timer.timeMinInputRest) !== 0) && (
+                                            <> (Work) + {DisplayTimeForText(timer.timeMinInputRest, timer.timeSecInputRest)} (Rest)</>
+                                        )}{' '}
+                                        <DisplayRepsForText repInput={Number(timer.repInput)} />
                                     </p>
-                                    {DisplayTimeForText(timer.timeMinInput, timer.timeSecInput)}
-                                    {(Number(timer.timeSecInputRest) !== 0 || Number(timer.timeMinInputRest) !== 0) && (
-                                        <> (Work) + {DisplayTimeForText(timer.timeMinInputRest, timer.timeSecInputRest)} (Rest)</>
-                                    )}
-                                    <DisplayRepsForText repInput={Number(timer.repInput)} /> {isStarted && timerElapsedTime > 0 && !isFinished && ' (started)'}
-                                    {isFinished && ' (finished)'}
+                                    <div style={{ fontSize: '0.8rem' }}>{timer.title} </div>
+                                    {/* <div style={{ fontSize: '0.75rem' }}>
+                                        {isStarted && timerElapsedTime >= 0 && !isFinished && totalSecondsPassed > 0 && ' (started)'}
+                                        {isFinished && ' (finished)'}
+                                    </div> */}
                                     <div style={{ fontWeight: 'lighter', fontSize: '0.75rem' }}>{timer.comments}</div>
                                 </div>
 
                                 {isEditing && (
                                     <div>
                                         {(!isFinished || (!isStarted && timerElapsedTime === 0)) && (
-                                            <Buttons>
-                                                <Button onClick={() => editTimer(index)} style={{ backgroundColor: 'darkgrey', width: '20px', height: '20px' }}>
-                                                    <img src="src/utils/1416596-200.png" alt="pencil editing logo" width="10px" />
+                                            <Buttons style={{ marginLeft: '1rem' }}>
+                                                <Button
+                                                    onClick={() => editTimer(index)}
+                                                    style={{
+                                                        backgroundColor: 'lightgrey',
+                                                        width: '5px',
+                                                        height: '5px',
+                                                        fontSize: '0.5rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
+                                                    }}
+                                                >
+                                                    <img src="src/utils/1416596-200.png" alt="" height="8px" />
                                                 </Button>
                                                 {index !== 0 && (
-                                                    <Button onClick={() => moveTimerUp(index)} style={{ backgroundColor: 'darkgrey', width: '20px', height: '20px' }}>
-                                                        <img src="src/utils/chevron.png" alt="chevron arrow up" width="10px" />
+                                                    <Button
+                                                        onClick={() => moveTimerUp(index)}
+                                                        style={{
+                                                            backgroundColor: 'lightgrey',
+                                                            width: '5px',
+                                                            height: '5px',
+                                                            fontSize: '0.5rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
+                                                        }}
+                                                    >
+                                                        <img src="src/utils/chevron.png" alt="" height="8px" />
                                                     </Button>
                                                 )}
                                                 {index !== timersArray.length - 1 && (
                                                     <Button
                                                         onClick={() => moveTimerDown(index)}
-                                                        style={{ backgroundColor: 'darkgrey', width: '20px', height: '20px', justifyContent: 'center', rotate: '180deg' }}
+                                                        style={{
+                                                            backgroundColor: 'lightgrey',
+                                                            width: '5px',
+                                                            height: '5px',
+                                                            fontSize: '0.5rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            transform: 'rotate(180deg)',
+                                                            boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
+                                                        }}
                                                     >
-                                                        <img src="src/utils/chevron.png" alt="chevron arrow up" width="10px" />
+                                                        <img src="src/utils/chevron.png" alt="" height="8px" />
                                                     </Button>
                                                 )}
                                             </Buttons>

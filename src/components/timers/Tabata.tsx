@@ -44,8 +44,8 @@ const Tabata: React.FC<TimerProps> = ({ repInput, timeMinInputRest, timeSecInput
             </TimerContainer>
             <Buttons>
                 {isCurrent === true && (
-                    <Button onClick={fastforward} style={{ backgroundColor: 'darkgreen' }}>
-                        Forward
+                    <Button onClick={fastforward} style={{ backgroundColor: '#3A7D44' }}>
+                        Forward Timer
                     </Button>
                 )}
             </Buttons>

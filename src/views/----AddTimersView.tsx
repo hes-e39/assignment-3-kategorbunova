@@ -1,9 +1,10 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import Countdown from '../components/timers/Countdown';
 import Stopwatch from '../components/timers/Stopwatch';
 import Tabata from '../components/timers/Tabata';
 import XY from '../components/timers/XY';
 import type { TimerProps } from '../utils/TimerProps';
+import { STATUS } from '../utils/constants';
 import { Button, Buttons, Input, Inputs } from '../utils/styles';
 import { TimersContext } from './TimerProvider';
 import YourWorkoutList from './YourWorkoutList';
@@ -29,6 +30,11 @@ const AddTimersView = () => {
         setSelectedTimer,
         moveTimerDown,
         moveTimerUp,
+        setTimersArray,
+        setTotalSecondsPassed,
+        setCurrentTimerIndex,
+        setStatusQueue,
+        setIsWorkoutComplete,
     } = useContext(TimersContext);
 
     type TimerTitle = 'Stopwatch' | 'Countdown' | 'XY' | 'Tabata';
@@ -39,6 +45,14 @@ const AddTimersView = () => {
         { title: 'XY', C: XY },
         { title: 'Tabata', C: Tabata },
     ];
+
+    useEffect(() => {
+        // Reset state when the component mounts
+        setTotalSecondsPassed(0);
+        setCurrentTimerIndex(0);
+        setStatusQueue(STATUS.INITIAL); // Replace with STATUS.INITIAL if using constants
+        setIsWorkoutComplete(false);
+    }, [setTotalSecondsPassed, setCurrentTimerIndex, setStatusQueue, setIsWorkoutComplete]);
 
     //const [selectedTimer, setSelectedTimer] = useState<TimerTitle | ''>('');
 
@@ -66,7 +80,7 @@ const AddTimersView = () => {
                 />
                 <Buttons>
                     {timersArray.length !== 0 && (
-                        <Buttons style={{ justifyContent: 'left' }}>
+                        <Buttons>
                             <Button onClick={() => removeLastTimer()} style={{ backgroundColor: 'maroon', width: '100px' }}>
                                 Remove Last
                             </Button>
@@ -75,14 +89,16 @@ const AddTimersView = () => {
                             </Button>
                         </Buttons>
                     )}
-                    <Button onClick={showAddView} style={{ backgroundColor: 'navy', width: '100px' }}>
-                        {!addTimerView ? 'Add Timer' : 'Collapse'}
-                    </Button>
                     <Button onClick={saveTimersToURL} style={{ backgroundColor: 'green', width: '100px' }}>
                         Save
                     </Button>
                 </Buttons>
             </div>
+            <Buttons>
+                <Button onClick={showAddView} style={{ backgroundColor: 'navy', width: '100px' }}>
+                    {!addTimerView ? 'Add Timer' : 'Collapse'}
+                </Button>
+            </Buttons>
 
             {addTimerView && (
                 <div style={{ backgroundColor: 'lightblue', minWidth: '20rem', paddingTop: '2rem', paddingLeft: '3rem', paddingRight: '5rem', borderRadius: '10px' }}>
@@ -105,6 +121,7 @@ const AddTimersView = () => {
                             </option>
                         ))}
                     </select>
+
                     {selectedTimer && (
                         <div>
                             {/* {timers.map(timer => (
@@ -194,6 +211,7 @@ const AddTimersView = () => {
                                             onChange={e => {
                                                 handleInputChange(selectedTimer, 'repInput', e.target.value);
                                             }}
+                                            required
                                         >
                                             <option value="" disabled>
                                                 Reps
