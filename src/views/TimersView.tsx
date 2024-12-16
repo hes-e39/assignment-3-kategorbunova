@@ -103,10 +103,24 @@ const TimersView = () => {
             <TopContainer isEditingWorkout={isEditingWorkout} hasTimers={timersArray.length > 0}>
                 <div>
                     <Buttons style={{ justifyContent: 'left' }}>
-                        <StyledQueueButton onClick={startStopQueue} status={statusQueue} isComplete={isWorkoutComplete}>
+                        <StyledQueueButton
+                            onClick={startStopQueue}
+                            status={statusQueue}
+                            isComplete={isWorkoutComplete}
+                            isEditing={isEditingWorkout}
+                            noSecondsInQueue={timersArray.length === 0 || timersArray.every(timer => timer.totalSeconds === 0)}
+                        >
                             {statusQueue === STATUS.STARTED ? 'Pause Workout' : 'Start Workout'}
                         </StyledQueueButton>
-                        <ResetButton onClick={resetQueue}>Reset Workout</ResetButton>
+                        <ResetButton
+                            onClick={resetQueue}
+                            isEditing={isEditingWorkout}
+                            noSecondsInQueue={timersArray.length === 0 || timersArray.every(timer => timer.totalSeconds === 0)}
+                            noSecondsPassed={totalSecondsPassed === 0 && totalQueueSeconds > 0}
+                        >
+                            {' '}
+                            Reset Workout
+                        </ResetButton>
                     </Buttons>
 
                     <div>
@@ -258,7 +272,8 @@ const TimersView = () => {
                         <div>
                             <div style={{ paddingTop: '0.75rem', fontSize: '1.4rem', fontWeight: 'bold' }}>
                                 {' '}
-                                {totalSecondsLeft !== 0 && totalQueueSeconds !== 0 ? 'Active Timer' : 'Workout Complete!'}
+                                {totalSecondsLeft !== 0 && totalQueueSeconds !== 0 && 'Active Timer'}
+                                {totalSecondsLeft === 0 && totalQueueSeconds !== 0 && 'Workout Complete!'}
                             </div>
                             {showConfetti && <Confetti recycle={false} />}
                             <div style={{ display: 'flex', flexDirection: 'row', gap: '4rem' }}>

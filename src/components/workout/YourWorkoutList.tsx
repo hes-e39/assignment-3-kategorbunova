@@ -1,7 +1,8 @@
 import { useContext } from 'react';
+import colors from '../../utils/colors';
 import { DisplayRepsForText, DisplayTimeForText } from '../../utils/helpers';
 import { DisplayForTime } from '../../utils/helpers';
-import { Button, Buttons, SupportText } from '../../utils/styles';
+import { Button, Buttons, EditingTitle, SmallButton, StyledWorkoutList, SupportText } from '../../utils/styles';
 import { TimersContext } from '../../views/TimerProvider';
 
 type Timer = {
@@ -44,41 +45,18 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
     const { editingIndex, addTimerView, statusQueue, setIsEditingTitle, isEditingTitle, handleTitleChange } = useContext(TimersContext);
 
     return (
-        <div
-            style={{
-                background: 'white',
-                padding: '2rem 3rem',
-                transition: 'background-color 0.5s ease',
-                borderRadius: '20px',
-                marginRight: '10px',
-                width: '400px',
-                minHeight: '200px',
-            }}
-        >
+        <StyledWorkoutList>
             <div style={{ display: 'flex' }}>
-                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', margin: '10px 0px' }}>
                     {isEditingTitle ? (
-                        <input
-                            type="text"
-                            value={workoutTitle}
-                            onChange={e => handleTitleChange(e.target.value)}
-                            onBlur={() => setIsEditingTitle(false)}
-                            style={{
-                                fontSize: '1.4rem',
-                                fontWeight: 'bold',
-                                background: 'transparent',
-                                textAlign: 'left',
-                                paddingLeft: '0.5rem',
-                                width: '100%',
-                            }}
-                        />
+                        <EditingTitle type="text" value={workoutTitle} onChange={e => handleTitleChange(e.target.value)} onBlur={() => setIsEditingTitle(false)} />
                     ) : (
                         workoutTitle || 'Your Workout'
                     )}
                 </div>
 
                 {isEditing && (
-                    <Button onClick={() => setIsEditingTitle(!isEditingTitle)} style={{ marginLeft: '10px', backgroundColor: 'lightgrey', border: 'none' }}>
+                    <Button onClick={() => setIsEditingTitle(!isEditingTitle)} style={{ backgroundColor: 'lightgrey', border: 'none', margin: '10px 10px', padding: '2px 10px' }}>
                         {isEditingTitle ? 'Save' : 'Edit'}
                     </Button>
                 )}
@@ -96,9 +74,9 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                             style={{
                                 color:
                                     editingIndex === index && addTimerView
-                                        ? '#D1A974'
+                                        ? colors.accent
                                         : isStarted && statusQueue === 'Started' && !isFinished
-                                          ? '#3A7D44'
+                                          ? colors.green
                                           : (isFinished && statusQueue !== 'Initial' && timerElapsedTime >= 0) || totalSecondsPassed === totalQueueSeconds
                                             ? 'gray'
                                             : 'black',
@@ -119,10 +97,6 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                         <DisplayRepsForText repInput={Number(timer.repInput)} />
                                     </p>
                                     <div style={{ fontSize: '0.8rem' }}>{timer.title} </div>
-                                    {/* <div style={{ fontSize: '0.75rem' }}>
-                                        {isStarted && timerElapsedTime >= 0 && !isFinished && totalSecondsPassed > 0 && ' (started)'}
-                                        {isFinished && ' (finished)'}
-                                    </div> */}
                                     <div style={{ fontWeight: 'lighter', fontSize: '0.75rem' }}>{timer.comments}</div>
                                 </div>
 
@@ -130,55 +104,18 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                     <div>
                                         {(!isFinished || (!isStarted && timerElapsedTime === 0)) && (
                                             <Buttons style={{ marginLeft: '1rem' }}>
-                                                <Button
-                                                    onClick={() => editTimer(index)}
-                                                    style={{
-                                                        backgroundColor: 'lightgrey',
-                                                        width: '5px',
-                                                        height: '5px',
-                                                        fontSize: '0.5rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
-                                                    }}
-                                                >
+                                                <SmallButton onClick={() => editTimer(index)}>
                                                     <img src="src/utils/images/1416596-200.png" alt="pencil edit icon" height="8px" />
-                                                </Button>
+                                                </SmallButton>
                                                 {index !== 0 && (
-                                                    <Button
-                                                        onClick={() => moveTimerUp(index)}
-                                                        style={{
-                                                            backgroundColor: 'lightgrey',
-                                                            width: '5px',
-                                                            height: '5px',
-                                                            fontSize: '0.5rem',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
-                                                        }}
-                                                    >
+                                                    <SmallButton onClick={() => moveTimerUp(index)}>
                                                         <img src="src/utils/images/chevron.png" alt="chevron up" height="8px" />
-                                                    </Button>
+                                                    </SmallButton>
                                                 )}
                                                 {index !== timersArray.length - 1 && (
-                                                    <Button
-                                                        onClick={() => moveTimerDown(index)}
-                                                        style={{
-                                                            backgroundColor: 'lightgrey',
-                                                            width: '5px',
-                                                            height: '5px',
-                                                            fontSize: '0.5rem',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            transform: 'rotate(180deg)',
-                                                            boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
-                                                        }}
-                                                    >
+                                                    <SmallButton onClick={() => moveTimerDown(index)}>
                                                         <img src="src/utils/images/chevron.png" alt="chevron down" height="8px" />
-                                                    </Button>
+                                                    </SmallButton>
                                                 )}
                                             </Buttons>
                                         )}
@@ -189,7 +126,7 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                     );
                 })}
             </ol>
-        </div>
+        </StyledWorkoutList>
     );
 };
 
