@@ -108,7 +108,7 @@ ${baseButtonStyle}
 background-color: #D1A974;
 font-size: 1rem;
 font-weight: bolder;
-width: 12rem;
+width: 13rem;
 `;
 
 const EditingModeButton = styled.button<{ disabled?: boolean; bgColor?: string }>`
