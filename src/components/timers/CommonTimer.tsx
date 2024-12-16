@@ -6,16 +6,10 @@ import { convertToSeconds } from '../../utils/helpers';
 import { TimeDisplay, Timer, TimerContainer } from '../../utils/styles';
 import { Button, Buttons } from '../../utils/styles';
 
-const CommonTimer: React.FC<TimerProps> = ({ type, repInput, timeMinInputRest, timeSecInputRest, totalSeconds, isActive, isCurrent, isFinished, onFinish, comments }) => {
+const CommonTimer: React.FC<TimerProps> = ({ type, repInput, timeMinInputRest, timeSecInputRest, totalSeconds, isActive, isCurrent, onFinish, comments }) => {
     const totalSecondsRest = convertToSeconds(timeMinInputRest || 0, timeSecInputRest || 0) * Number(repInput);
 
-    const { secondsPassed, setSecondsPassed, fastforward, repsRemaining, oneRoundSecondsLeft, isWorkPhase, oneRoundSeconds, setRepsRemaining } = useCountdownTimer(
-        totalSeconds,
-        isActive,
-        onFinish,
-        Number(repInput),
-        totalSecondsRest,
-    );
+    const { secondsPassed, fastforward, repsRemaining, oneRoundSecondsLeft, isWorkPhase } = useCountdownTimer(totalSeconds, isActive, onFinish, Number(repInput), totalSecondsRest);
 
     const timerStyle = {
         color: isWorkPhase ? 'green' : 'blue', // Green for work, red for rest

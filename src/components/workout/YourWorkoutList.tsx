@@ -21,13 +21,13 @@ interface WorkoutTimersListProps {
     totalSecondsPassed: number;
     currentTimerIndex: number;
     editTimer: (index: number) => void;
-    isSaved: boolean;
     isEditing: boolean;
-    isWorkoutHistory: boolean;
+    isSaved: boolean;
+    isWorkoutHistory?: boolean;
     moveTimerUp: (index: number) => void;
     moveTimerDown: (index: number) => void;
-    workoutTitle: string;
-    setWorkoutTitle: (title: string) => void;
+    workoutTitle?: string;
+    setWorkoutTitle?: (title: string) => void;
 }
 
 const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
@@ -36,14 +36,12 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
     totalSecondsPassed,
     currentTimerIndex,
     editTimer,
-    isSaved,
-    isWorkoutHistory,
     isEditing,
     moveTimerUp,
     moveTimerDown,
     workoutTitle,
 }) => {
-    const { editingIndex, addTimerView, statusQueue, showAddView, hideAddView, setIsEditingTitle, isEditingTitle, handleTitleChange } = useContext(TimersContext);
+    const { editingIndex, addTimerView, statusQueue, setIsEditingTitle, isEditingTitle, handleTitleChange } = useContext(TimersContext);
 
     return (
         <div

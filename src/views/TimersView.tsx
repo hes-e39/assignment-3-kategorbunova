@@ -79,7 +79,7 @@ const TimersView = () => {
         resetTimers();
     };
 
-    const renderWorkoutList = isEditing => (
+    const renderWorkoutList = (isEditing: boolean) => (
         <YourWorkoutList
             timersArray={timersArray}
             totalQueueSeconds={totalQueueSeconds}

@@ -14,14 +14,14 @@ export type Timer = {
 };
 
 const WorkoutHistoryView = () => {
-    const { workoutsCompleted, addWorkoutToHistory, setWorkoutsCompleted, totalQueueSeconds } = useContext(TimersContext);
+    const { workoutsCompleted, setWorkoutsCompleted, totalQueueSeconds } = useContext(TimersContext);
 
     const clearWorkoutHistory = () => {
         setWorkoutsCompleted([]);
         localStorage.removeItem('workoutsCompleted');
     };
 
-    const groupWorkouts = workouts => {
+    const groupWorkouts = (workouts: Array<{ title: string; timers: Timer[] }>) => {
         const workoutMap = new Map();
 
         workouts.forEach(workout => {
@@ -53,7 +53,19 @@ const WorkoutHistoryView = () => {
                                 <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
                                     Workout {index + 1} {count > 1 && `(x${count})`}
                                 </div>
-                                <YourWorkoutList timersArray={workout.timers || []} isEditing={false} isWorkoutHistory={true} workoutTitle={workout.title} totalQueueSeconds={totalQueueSeconds} />
+                                <YourWorkoutList
+                                    timersArray={workout.timers || []}
+                                    totalSecondsPassed={0}
+                                    currentTimerIndex={-1}
+                                    editTimer={() => {}}
+                                    moveTimerUp={() => {}}
+                                    moveTimerDown={() => {}}
+                                    isEditing={false}
+                                    isSaved={false}
+                                    isWorkoutHistory={true}
+                                    workoutTitle={workout.title}
+                                    totalQueueSeconds={totalQueueSeconds}
+                                />
                             </div>
                         ))}
                     </div>

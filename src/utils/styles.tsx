@@ -42,16 +42,12 @@ const TimerContainer = styled.div<TimerContainerProps>`
    height: 180px;
   
 `;
-// transform: ${props => (props.isActive ? 'scale(1)' : 'scale(0.5)')};
-//   transition: all 0.3s ease;
 
 const TimerHeader = styled.div<TimerContainerProps>`
      opacity: ${props => (props.isActive ? 1 : 0.5)}; 
   
       transition: all 0.3s ease; 
 `;
-// transform: ${props => (props.isActive ? 'scale(1)' : 'scale(0.5)')};
-// font-size: ${props => (props.isActive ? '1rem' : '0.8rem')};
 
 const Timer = styled.div<TimerContainerProps>`
   display: flex;
@@ -66,9 +62,6 @@ const Timer = styled.div<TimerContainerProps>`
   background-color: white;
   border-radius: 10px;
 `;
-// width: ${props => (props.isActive ? '200px' : '150px')};
-// padding: ${props => (props.isActive ? '20px' : '10px')};
-// font-size: ${props => (props.isActive ? '1rem' : '0.8rem')};
 
 const TimeDisplay = styled.div<TimerContainerProps>`
   border: 2px solid white;
@@ -182,7 +175,7 @@ const EditingModeButton = styled.button<{ disabled?: boolean; bgColor?: string }
 `;
 
 const StyledQueueButton = styled(EditingModeButton)<{ isComplete?: boolean; status?: string }>`
-  background-color: ${({ status, isComplete }) => (isComplete ? colors.disabled : status === STATUS.STARTED ? colors.red : colors.accent)};
+  background-color: ${({ status, isComplete }) => (isComplete ? colors.primary : status === STATUS.STARTED ? colors.red : colors.accent)};
   opacity: ${({ isComplete }) => (isComplete ? 0.3 : 1)};
   pointer-events: ${({ isComplete }) => (isComplete ? 'none' : 'auto')};
   font-size: 1rem;
@@ -190,7 +183,7 @@ const StyledQueueButton = styled(EditingModeButton)<{ isComplete?: boolean; stat
 `;
 
 const ResetButton = styled(EditingModeButton)`
-  background-color: ${colors.secondary}; /* Reuse centralized colors */
+  background-color: ${colors.primary};
   font-size: 1rem;
     margin: 0.7rem 0rem;
 `;
@@ -236,6 +229,73 @@ position: sticky;
   max-width: 30%;
   margin-right: 1rem;`;
 
+const PageContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+`;
+
+const Header = styled.header`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    background: #3b4856;
+    padding: 2rem;
+`;
+
+const Main = styled.main`
+    flex: 1;
+    padding: 2rem;
+    background: linear-gradient(to top, white, #d9d9d9, white);
+`;
+
+const NavList = styled.ul`
+    display: flex;
+    text-align: right;
+    justify-content: right;
+    gap: 1rem;
+    min-width: 10rem;
+    font-variant: all-small-caps;
+    flex-basis: 80%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+`;
+
+const Footer = styled.footer`
+    background-color: #3b4856;
+    padding: 1rem 2rem;
+    text-align: center;
+    color: white;
+
+    a {
+        color: #d1a974;
+        text-decoration: none;
+        margin: 0 1rem;
+    }
+`;
+
+const LinkStyle = (isActive: boolean) => `
+    text-decoration: underline;
+    color: ${isActive ? '#D1A974' : 'white'};
+    font-size: 1.1rem;
+    font-weight: ${isActive ? 'bold' : 'normal'};
+`;
+
+const StyledTitle = styled.h1`
+text-align: left;
+background: #3b4856;
+margin: 0;
+font-variant: all-small-caps;
+padding-bottom: 8px;
+padding-left: 1rem;
+color: white;
+font-size: 3rem;
+flex-basis: 100%;
+align-items: center;
+`;
+
 export {
     Button,
     Buttons,
@@ -258,4 +318,11 @@ export {
     SaveEditButton,
     MainContaier,
     LeftContainer,
+    PageContainer,
+    Header,
+    Main,
+    NavList,
+    Footer,
+    LinkStyle,
+    StyledTitle,
 };
