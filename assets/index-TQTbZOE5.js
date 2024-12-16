@@ -151,7 +151,7 @@ ${fc}
 background-color: #D1A974;
 font-size: 1rem;
 font-weight: bolder;
-width: 12rem;
+width: 13rem;
 `,oo=me.button`
   ${fc}
   background-color: ${({bgColor:e})=>e||wt.primary};
