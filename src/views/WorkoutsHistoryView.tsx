@@ -1,7 +1,7 @@
 import { useContext } from 'react';
+import YourWorkoutList from '../components/workout/YourWorkoutList';
 import { Button } from '../utils/styles';
 import { TimersContext } from './TimerProvider';
-import YourWorkoutList from './YourWorkoutList';
 export type Timer = {
     title: string;
     totalSeconds: number;

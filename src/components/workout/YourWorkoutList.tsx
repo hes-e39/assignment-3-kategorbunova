@@ -1,8 +1,8 @@
 import { useContext } from 'react';
-import { DisplayRepsForText, DisplayTimeForText } from '../utils/helpers';
-import { DisplayForTime } from '../utils/helpers';
-import { Button, Buttons, SupportText } from '../utils/styles';
-import { TimersContext } from './TimerProvider';
+import { DisplayRepsForText, DisplayTimeForText } from '../../utils/helpers';
+import { DisplayForTime } from '../../utils/helpers';
+import { Button, Buttons, SupportText } from '../../utils/styles';
+import { TimersContext } from '../../views/TimerProvider';
 
 type Timer = {
     title: string;
@@ -68,10 +68,9 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                             style={{
                                 fontSize: '1.4rem',
                                 fontWeight: 'bold',
-                                background: 'lightgrey',
-                                border: 'none',
-                                outline: 'none',
-                                textAlign: 'center',
+                                background: 'transparent',
+                                textAlign: 'left',
+                                paddingLeft: '0.5rem',
                                 width: '100%',
                             }}
                         />
@@ -146,7 +145,7 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                                         boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
                                                     }}
                                                 >
-                                                    <img src="src/utils/1416596-200.png" alt="" height="8px" />
+                                                    <img src="src/utils/images/1416596-200.png" alt="pencil edit icon" height="8px" />
                                                 </Button>
                                                 {index !== 0 && (
                                                     <Button
@@ -162,7 +161,7 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                                             boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
                                                         }}
                                                     >
-                                                        <img src="src/utils/chevron.png" alt="" height="8px" />
+                                                        <img src="src/utils/images/chevron.png" alt="chevron up" height="8px" />
                                                     </Button>
                                                 )}
                                                 {index !== timersArray.length - 1 && (
@@ -180,7 +179,7 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                                             boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',
                                                         }}
                                                     >
-                                                        <img src="src/utils/chevron.png" alt="" height="8px" />
+                                                        <img src="src/utils/images/chevron.png" alt="chevron down" height="8px" />
                                                     </Button>
                                                 )}
                                             </Buttons>

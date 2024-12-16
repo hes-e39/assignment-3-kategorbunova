@@ -1,4 +1,5 @@
 export interface TimerProps {
+    type: string;
     timeMinInput?: string;
     timeSecInput?: string;
     repInput: string;

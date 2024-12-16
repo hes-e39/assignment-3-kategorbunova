@@ -1,28 +1,14 @@
 import { useContext } from 'react';
 import Confetti from 'react-confetti';
-import Countdown from '../components/timers/Countdown';
-import Stopwatch from '../components/timers/Stopwatch';
-import Tabata from '../components/timers/Tabata';
-import XY from '../components/timers/XY';
+import CommonTimer from '../components/timers/CommonTimer';
+import Dropdown from '../components/workout/Dropdown';
+import YourWorkoutList from '../components/workout/YourWorkoutList';
+import colors from '../utils/colors';
 import { STATUS } from '../utils/constants';
 import { DisplayForTime } from '../utils/helpers';
 import { TimerHeader } from '../utils/styles';
-import { Button, Buttons, Input, Inputs } from '../utils/styles';
+import { Button, Buttons, EditingModeButton, Input, Inputs, LeftContainer, MainContaier, ResetButton, SaveEditButton, StyledQueueButton, TopContainer } from '../utils/styles';
 import { TimersContext } from './TimerProvider';
-import YourWorkoutList from './YourWorkoutList';
-
-interface TimerProps {
-    timeMinInput?: string;
-    timeSecInput?: string;
-    repInput: string;
-    timeMinInputRest?: string;
-    timeSecInputRest?: string;
-    totalSeconds: number;
-    isActive: boolean;
-    isCurrent: boolean;
-    isFinished: boolean;
-    onFinish: () => void;
-}
 
 const TimersView = () => {
     const {
@@ -50,63 +36,18 @@ const TimersView = () => {
         setSelectedTimer,
         moveTimerDown,
         moveTimerUp,
-        setTimersArray,
-        setIsWorkoutComplete,
         isWorkoutComplete,
         isEditingWorkout,
         setIsEditingWorkout,
         error,
-        setError,
-        hideAddView,
         showConfetti,
         workoutTitle,
+        saveTimersToURL,
     } = useContext(TimersContext);
 
-    interface DropdownProps {
-        id: string;
-        label: string;
-        value: string | number | undefined;
-        onChange: (value: string) => void;
-        options: number[];
-        style?: React.CSSProperties;
-        placeholder?: string;
-    }
-
-    const Dropdown: React.FC<DropdownProps> = ({ id, label, value, onChange, options, style, placeholder }) => {
-        return (
-            <div style={{ marginBottom: '0.5rem' }}>
-                <label htmlFor={id} style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-                    {label}
-                </label>
-                <select
-                    id={id}
-                    style={{ fontSize: '0.75rem', textAlign: 'right', ...style }}
-                    value={value || ''}
-                    onChange={e => {
-                        onChange(e.target.value);
-                        setError(null);
-                    }}
-                >
-                    {placeholder && <option value="">{placeholder}</option>}
-                    {options.map(option => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
-            </div>
-        );
-    };
-
-    type TimerComponent = React.FC<TimerProps>;
     type TimerTitle = 'Stopwatch' | 'Countdown' | 'XY' | 'Tabata';
 
-    const timers: { title: string; C: TimerComponent }[] = [
-        { title: 'Stopwatch', C: Stopwatch },
-        { title: 'Countdown', C: Countdown },
-        { title: 'XY', C: XY },
-        { title: 'Tabata', C: Tabata },
-    ];
+    const timers: { title: string }[] = [{ title: 'Stopwatch' }, { title: 'Countdown' }, { title: 'XY' }, { title: 'Tabata' }];
 
     const handleTimerFinish = () => {
         const newIndex = currentTimerIndex;
@@ -129,14 +70,6 @@ const TimersView = () => {
         setStatusQueue(STATUS.INITIAL);
     };
 
-    const saveTimersToURL = () => {
-        const encodedTimers = encodeURIComponent(JSON.stringify(timersArray));
-        const newUrl = `${window.location.origin}${window.location.pathname}?timers=${encodedTimers}`;
-        window.history.pushState({ path: newUrl }, '', newUrl);
-        setIsSaved(true);
-        setIsEditingWorkout(false);
-    };
-
     const editWorkout = () => {
         setIsEditingWorkout(true);
         setIsSaved(false);
@@ -146,48 +79,36 @@ const TimersView = () => {
         resetTimers();
     };
 
+    const renderWorkoutList = isEditing => (
+        <YourWorkoutList
+            timersArray={timersArray}
+            totalQueueSeconds={totalQueueSeconds}
+            totalSecondsPassed={totalSecondsPassed}
+            currentTimerIndex={currentTimerIndex}
+            isSaved={isSaved}
+            isEditing={isEditing}
+            editTimer={editTimer}
+            moveTimerDown={moveTimerDown}
+            moveTimerUp={moveTimerUp}
+            workoutTitle={workoutTitle}
+        />
+    );
+
     const totalSecondsLeft = totalQueueSeconds - totalSecondsPassed;
 
     return (
         <div>
             {/* TOP SECTION WITH PROGRESS */}
 
-            <div
-                style={{
-                    opacity: isEditingWorkout || timersArray.length === 0 ? 0.3 : 1,
-                    pointerEvents: isEditingWorkout || timersArray.length === 0 ? 'none' : 'auto',
-                    paddingLeft: '2rem',
-                    paddingRight: '2rem',
-                    position: 'absolute',
-                    top: '10rem',
-                    width: '90%',
-                }}
-            >
+            <TopContainer isEditingWorkout={isEditingWorkout} hasTimers={timersArray.length > 0}>
                 <div>
-                    {/* {timersArray.length > 0 && ( */}
                     <Buttons style={{ justifyContent: 'left' }}>
-                        {/* {totalSecondsPassed !== totalQueueSeconds && ( */}
-                        <Button
-                            onClick={startStopQueue}
-                            style={{
-                                backgroundColor: statusQueue === STATUS.STARTED ? '#B0413E' : '#D1A974',
-                                fontSize: '1rem',
-                                opacity: isWorkoutComplete ? 0.3 : 1,
-                                pointerEvents: isWorkoutComplete ? 'none' : 'auto',
-                            }}
-                        >
+                        <StyledQueueButton onClick={startStopQueue} status={statusQueue} isComplete={isWorkoutComplete}>
                             {statusQueue === STATUS.STARTED ? 'Pause Workout' : 'Start Workout'}
-                        </Button>
-                        {/* )} */}
-                        {/* {Number(totalSecondsPassed) > 0 && ( */}
-                        <Button onClick={resetQueue} style={{ backgroundColor: '#3B4856', fontSize: '1rem' }}>
-                            Reset Workout
-                        </Button>
-                        {/* )} */}
+                        </StyledQueueButton>
+                        <ResetButton onClick={resetQueue}>Reset Workout</ResetButton>
                     </Buttons>
-                    {/* )} */}
 
-                    {/* {timersArray.length > 0 && ( */}
                     <div>
                         <h3 style={{ margin: 0 }}>Time Left: {DisplayForTime({ minutesOnTimer: Math.floor(totalSecondsLeft / 60), secondsOnTimer: totalSecondsLeft % 60 })}</h3>
                         <progress value={totalSecondsPassed / totalQueueSeconds} max="1" style={{ width: '100%', height: '1rem' }} />
@@ -200,109 +121,20 @@ const TimersView = () => {
                             </p>
                         </div>
                     </div>
-                    {/* )} */}
                 </div>
-            </div>
-
-            {/* {isEditingWorkout && (
-                <div>
-                    <div style={{ paddingLeft: '2rem', paddingRight: '2rem', position: 'absolute', top: '10rem', width: '90%' }}>Editing a workout</div>
-                </div>
-            )} */}
+            </TopContainer>
 
             {/* MAIN BLOCK WITH CONTENT */}
-            <div style={{ display: 'flex', paddingTop: '11rem', paddingLeft: '3rem', width: '100%', flexGrow: 1, flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <MainContaier>
                 {/* FIRST BLOCK ON THE LEFT */}
-                <div
-                    style={{
-                        position: 'sticky',
-                        top: '10rem',
-                        alignSelf: 'flex-start',
-                        minWidth: '500px',
-                        maxWidth: '30%',
-                        marginRight: '1rem',
-                    }}
-                >
-                    {isEditingWorkout && (
-                        <div>
-                            <YourWorkoutList
-                                timersArray={timersArray}
-                                totalQueueSeconds={totalQueueSeconds}
-                                totalSecondsPassed={totalSecondsPassed}
-                                currentTimerIndex={currentTimerIndex}
-                                isSaved={isSaved}
-                                isEditing={true}
-                                editTimer={editTimer}
-                                moveTimerDown={moveTimerDown}
-                                moveTimerUp={moveTimerUp}
-                                workoutTitle={workoutTitle}
-                            />
-                            {/* <Buttons style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
-                                
-                                <Buttons>
-                                    <Button
-                                        onClick={() => removeLastTimer()}
-                                        style={{
-                                            backgroundColor: '#69140E',
-                                            opacity: timersArray.length === 0 ? 0.3 : 1, // Adjust opacity based on isEditingWorkout
-                                            pointerEvents: timersArray.length === 0 ? 'none' : 'auto', // Optional: Dis
-                                        }}
-                                    >
-                                        Remove Last Timer
-                                    </Button>
-                                    <Button
-                                        onClick={() => removeAllTimers()}
-                                        style={{
-                                            backgroundColor: '#69140E',
-                                            opacity: timersArray.length === 0 ? 0.3 : 1, // Adjust opacity based on isEditingWorkout
-                                            pointerEvents: timersArray.length === 0 ? 'none' : 'auto', // Optional: Dis
-                                        }}
-                                    >
-                                        Remove All Timers
-                                    </Button>
-
-                                </Buttons>
-                                {/* )} */}
-
-                            <Button
-                                onClick={saveTimersToURL}
-                                style={{
-                                    backgroundColor: '#3A7D44',
-                                    opacity: isSaved ? 0.3 : 1, // Adjust opacity based on isEditingWorkout
-                                    pointerEvents: isSaved ? 'none' : 'auto', // Optional: Dis
-                                    width: '500px',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                Save Workout
-                            </Button>
-                            {/* <Button onClick={closeEditWorkout} style={{ backgroundColor: '#5C7457', position: 'absolute', marginTop: '-2rem', width: '300px' }}>
-                                Back
-                            </Button> */}
-                        </div>
-                    )}
-
-                    {!isEditingWorkout && (
-                        <div>
-                            <YourWorkoutList
-                                timersArray={timersArray}
-                                totalQueueSeconds={totalQueueSeconds}
-                                totalSecondsPassed={totalSecondsPassed}
-                                currentTimerIndex={currentTimerIndex}
-                                isSaved={isSaved}
-                                isEditing={false}
-                                editTimer={editTimer}
-                                moveTimerDown={moveTimerDown}
-                                moveTimerUp={moveTimerUp}
-                                workoutTitle={workoutTitle}
-                            />
-
-                            <Button onClick={editWorkout} style={{ backgroundColor: '#3B4856', width: '500px' }}>
-                                Edit Workout
-                            </Button>
-                        </div>
-                    )}
-                </div>
+                <LeftContainer>
+                    {isEditingWorkout ? renderWorkoutList(true) : renderWorkoutList(false)}
+                    <div>
+                        <SaveEditButton onClick={isEditingWorkout ? saveTimersToURL : editWorkout} isEditing={isEditingWorkout} isSaved={isSaved}>
+                            {isEditingWorkout ? 'Save Workout' : 'Edit Workout'}
+                        </SaveEditButton>
+                    </div>
+                </LeftContainer>
 
                 {/* SECOND BLOCK ON THE RIGHT */}
                 <div
@@ -319,26 +151,12 @@ const TimersView = () => {
                                         {addTimerView ? 'Close' : 'Add Timer'}
                                     </Button>
 
-                                    <Button
-                                        onClick={() => removeLastTimer()}
-                                        style={{
-                                            backgroundColor: '#3B4856',
-                                            opacity: timersArray.length === 0 ? 0.3 : 1,
-                                            pointerEvents: timersArray.length === 0 ? 'none' : 'auto',
-                                        }}
-                                    >
+                                    <EditingModeButton onClick={() => removeLastTimer()} bgColor={colors.primary} disabled={timersArray.length === 0}>
                                         Remove Last Timer
-                                    </Button>
-                                    <Button
-                                        onClick={() => removeAllTimers()}
-                                        style={{
-                                            backgroundColor: '#3B4856',
-                                            opacity: timersArray.length === 0 ? 0.3 : 1,
-                                            pointerEvents: timersArray.length === 0 ? 'none' : 'auto',
-                                        }}
-                                    >
+                                    </EditingModeButton>
+                                    <EditingModeButton onClick={() => removeAllTimers()} bgColor={colors.primary} disabled={timersArray.length === 0}>
                                         Remove All Timers
-                                    </Button>
+                                    </EditingModeButton>
                                 </Buttons>
                             )}
                         </div>
@@ -438,7 +256,10 @@ const TimersView = () => {
 
                     {!isEditingWorkout && (
                         <div>
-                            <div style={{ paddingTop: '1rem', fontSize: '1.4rem', fontWeight: 'bold' }}> {totalSecondsLeft !== 0 ? 'Active Timer' : 'Workout Complete!'}</div>
+                            <div style={{ paddingTop: '0.75rem', fontSize: '1.4rem', fontWeight: 'bold' }}>
+                                {' '}
+                                {totalSecondsLeft !== 0 && totalQueueSeconds !== 0 ? 'Active Timer' : 'Workout Complete!'}
+                            </div>
                             {showConfetti && <Confetti recycle={false} />}
                             <div style={{ display: 'flex', flexDirection: 'row', gap: '4rem' }}>
                                 <div>
@@ -446,27 +267,19 @@ const TimersView = () => {
                                         if (index !== currentTimerIndex) {
                                             return null;
                                         }
-                                        const matchedTimer = timers.find(t => t.title === timer.title);
-
-                                        if (!matchedTimer) {
-                                            return null;
-                                        }
-
-                                        const Timer = matchedTimer.C;
 
                                         return (
                                             <div key={`timer-${index}`}>
                                                 <TimerHeader isActive={index === currentTimerIndex && statusQueue === STATUS.STARTED}>
                                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                         <div style={{ fontSize: '1.2rem' }}>
-                                                            Timer {index + 1}
-                                                            {/* {index === currentTimerIndex && ' (Active)'}
-                                                                            {index < currentTimerIndex && ' (Finished)'} */}
+                                                            Timer {index + 1} | {timer.title}
                                                         </div>
                                                         <div style={{ fontStyle: 'italic', fontSize: '0.75rem' }}>Total timer seconds: {timer.totalSeconds}</div>
                                                     </div>
                                                 </TimerHeader>
-                                                <Timer
+                                                <CommonTimer
+                                                    type={timer.title}
                                                     timeMinInput={timer.timeMinInput}
                                                     timeSecInput={timer.timeSecInput}
                                                     repInput={timer.repInput}
@@ -477,6 +290,7 @@ const TimersView = () => {
                                                     isCurrent={index === currentTimerIndex && statusQueue !== STATUS.INITIAL}
                                                     isFinished={index < currentTimerIndex}
                                                     onFinish={handleTimerFinish}
+                                                    comments={timer.comments}
                                                 />
                                             </div>
                                         );
@@ -486,7 +300,7 @@ const TimersView = () => {
                         </div>
                     )}
                 </div>
-            </div>
+            </MainContaier>
         </div>
     );
 };

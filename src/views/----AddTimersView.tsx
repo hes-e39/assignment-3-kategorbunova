@@ -3,11 +3,11 @@ import Countdown from '../components/timers/Countdown';
 import Stopwatch from '../components/timers/Stopwatch';
 import Tabata from '../components/timers/Tabata';
 import XY from '../components/timers/XY';
+import YourWorkoutList from '../components/workout/YourWorkoutList';
 import type { TimerProps } from '../utils/TimerProps';
 import { STATUS } from '../utils/constants';
 import { Button, Buttons, Input, Inputs } from '../utils/styles';
 import { TimersContext } from './TimerProvider';
-import YourWorkoutList from './YourWorkoutList';
 
 const AddTimersView = () => {
     const {

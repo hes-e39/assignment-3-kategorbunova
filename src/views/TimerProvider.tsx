@@ -62,6 +62,9 @@ export type TimersContextType = {
     isEditingTitle: boolean;
     setIsEditingTitle: React.Dispatch<React.SetStateAction<boolean>>;
     handleTitleChange: any;
+    saveTimersToURL: () => void;
+    // repsRemaining: number;
+    // isWorkPhase: boolean;
     //totalSecondsPassedLocal: number;
 };
 
@@ -88,7 +91,6 @@ export const TimersContext = createContext<TimersContextType>({
     setTotalSecondsPassed: () => {},
     setCurrentTimerIndex: () => {},
     setStatusQueue: () => {},
-    //totalSecondsPassedLocal: 0,
     isSaved: false,
     setIsSaved: () => {},
     showAddView: () => {},
@@ -118,73 +120,69 @@ export const TimersContext = createContext<TimersContextType>({
     isEditingTitle: false,
     setIsEditingTitle: () => {},
     handleTitleChange: () => {},
+    saveTimersToURL: () => {},
 });
 
 export const TimersProvider = ({ children }: { children: ReactNode }) => {
+    // INITIALIZING CONSTS
+
+    //consts that refer to timer logic
     const [timersArray, setTimersArray] = useState<Timer[]>([]);
     const [timerInputs, setTimerInputs] = useState(initialTimerInputs);
+    const [statusQueue, setStatusQueue] = useState<StatusType>(STATUS.INITIAL);
+
+    //local storage consts
     const [currentTimerIndex, setCurrentTimerIndex] = useState<number>(() => {
         const savedIndex = localStorage.getItem('indexLocal');
         return savedIndex ? Number(savedIndex) : 0;
     });
-    //const [totalSecondsPassed, setTotalSecondsPassed] = useState<number>(0);
-    const [isSaved, setIsSaved] = useState(false);
-
-    const [isEditingWorkout, setIsEditingWorkout] = useState(true);
-
-    useEffect(() => {
-        setIsEditingWorkout(true);
-    }, []);
-
     const [totalSecondsPassed, setTotalSecondsPassed] = useState<number>(() => {
         const savedValue = localStorage.getItem('totalSecondsPassedLocal');
         return savedValue ? Number(savedValue) : 0;
     });
-
-    const [statusQueue, setStatusQueue] = useState<StatusType>(STATUS.INITIAL);
-
-    const handleInputChange = (title: TimerTitle, field: string, value: string) => {
-        setTimerInputs(prevInputs => ({ ...prevInputs, [title]: { ...prevInputs[title], [field]: value } }));
-    };
-
-    const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const [selectedTimer, setSelectedTimer] = useState<TimerTitle | ''>('');
-
-    type CompletedWorkout = {
-        title: string;
-        timers: Timer[];
-    };
-
-    const [workoutsCompleted, setWorkoutsCompleted] = useState<CompletedWorkout[]>(() => {
+    const [workoutsCompleted, setWorkoutsCompleted] = useState<{ title: string; timers: Timer[] }[]>(() => {
         const savedWorkouts = localStorage.getItem('workoutsCompleted');
         return savedWorkouts ? JSON.parse(savedWorkouts) : [];
     });
-
-    const [isWorkoutComplete, setIsWorkoutComplete] = useState(false);
-
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
-
     const [workoutTitle, setWorkoutTitle] = useState<string>(() => {
         const savedWorkoutTitle = localStorage.getItem('workoutTitle');
         return savedWorkoutTitle ? savedWorkoutTitle : 'Your Workout';
     });
 
+    //consts for editing mode
+    const [isEditingWorkout, setIsEditingWorkout] = useState(true);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [selectedTimer, setSelectedTimer] = useState<TimerTitle | ''>('');
+    const [isSaved, setIsSaved] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [resetAll, setResetAll] = useState(false);
+    const [addTimerView, setAddTimerView] = useState(false);
+
+    //consts for finished workout
+    const [isWorkoutComplete, setIsWorkoutComplete] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+
+    //error catching
+    const [error, setError] = useState<string | null>(null);
+
+    //FUNCTIONS FOR TIMER LOGIC
+
+    const totalQueueSeconds = timersArray.reduce((total, timer) => {
+        const totalSeconds =
+            ((Number(timer.timeMinInput) || 0) * 60 + (Number(timer.timeSecInput) || 0) + (Number(timer.timeMinInputRest) || 0) * 60 + (Number(timer.timeSecInputRest) || 0)) *
+            (Number(timer.repInput) || 1);
+
+        return total + totalSeconds;
+    }, 0);
+
+    //functions for editing
+    const handleInputChange = (title: TimerTitle, field: string, value: string) => {
+        setTimerInputs(prevInputs => ({ ...prevInputs, [title]: { ...prevInputs[title], [field]: value } }));
+    };
+
     const handleTitleChange = (title: string) => {
         setWorkoutTitle(title);
     };
-
-    useEffect(() => {
-        if (!isEditingTitle) {
-            localStorage.setItem('workoutTitle', workoutTitle);
-        }
-    }, [isEditingTitle, workoutTitle]);
-
-    useEffect(() => {
-        const savedTitle = localStorage.getItem('workoutTitle');
-        if (savedTitle) {
-            handleTitleChange(savedTitle);
-        }
-    }, []);
 
     const handleSaveOrAdd = () => {
         setIsSaved(false);
@@ -218,8 +216,6 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
         setTimerInputs(initialTimerInputs);
     };
 
-    const [error, setError] = useState<string | null>(null);
-
     const addTimer = (title: TimerTitle) => {
         const timer = timerInputs[title] as {
             timeMinInput: string;
@@ -246,7 +242,7 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
             setError(null);
             setTimersArray(prevArray => [...prevArray, { title, totalSeconds, repInput, timeMinInput, timeSecInput, timeMinInputRest, timeSecInputRest, comments }]);
             setAddTimerView(false);
-            isEditingWorkout(true);
+            setIsEditingWorkout(true);
             setIsSaved(false);
         }
     };
@@ -288,26 +284,17 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
         setCurrentTimerIndex(0);
     };
 
-    const [resetAll, setResetAll] = useState(false);
-
     const resetTimers = () => {
         setResetAll(true);
         setTimeout(() => setResetAll(false), 0);
     };
 
-    const totalQueueSeconds = timersArray.reduce((total, timer) => {
-        const totalSeconds =
-            ((Number(timer.timeMinInput) || 0) * 60 + (Number(timer.timeSecInput) || 0) + (Number(timer.timeMinInputRest) || 0) * 60 + (Number(timer.timeSecInputRest) || 0)) *
-            (Number(timer.repInput) || 1);
-
-        return total + totalSeconds;
-    }, 0);
-
-    const [addTimerView, setAddTimerView] = useState(false);
-
     const showAddView = () => {
         if (addTimerView) {
             setAddTimerView(false);
+            setSelectedTimer('');
+            setTimerInputs(initialTimerInputs);
+            setEditingIndex(null);
         } else setAddTimerView(true);
     };
     const hideAddView = () => {
@@ -331,6 +318,32 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
             return newTimersArray;
         });
     };
+
+    const addWorkoutToHistory = workout => {
+        const totalQueueSeconds = workout.reduce((total, timer) => total + timer.totalSeconds, 0);
+        const workoutWithTitle = { totalQueueSeconds, title: workoutTitle, timers: workout };
+        setWorkoutsCompleted(prev => [...prev, workoutWithTitle]);
+        localStorage.setItem('workoutsCompleted', JSON.stringify([...prev, workoutWithTitle]));
+    };
+
+    const saveTimersToURL = () => {
+        const encodedTimers = encodeURIComponent(JSON.stringify(timersArray));
+        const newUrl = `${window.location.origin}${window.location.pathname}?timers=${encodedTimers}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+        setIsSaved(true);
+        setIsEditingWorkout(false);
+        setIsEditingTitle(false);
+    };
+
+    //ALL USEEFFECTS
+
+    //updating local storage values
+    useEffect(() => {
+        const savedTitle = localStorage.getItem('workoutTitle');
+        if (savedTitle) {
+            handleTitleChange(savedTitle);
+        }
+    }, []);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -356,32 +369,6 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('indexLocal', currentTimerIndex.toString());
     }, [currentTimerIndex]);
 
-    const [showConfetti, setShowConfetti] = useState(false);
-
-    useEffect(() => {
-        if (totalSecondsPassed === totalQueueSeconds) {
-            setStatusQueue(STATUS.STOPPED);
-            setShowConfetti(true);
-            setIsWorkoutComplete(true);
-            setTimeout(() => {
-                setShowConfetti(false);
-            }, 7000);
-        }
-    }, [totalSecondsPassed, totalQueueSeconds]);
-
-    useEffect(() => {
-        if (totalSecondsPassed === 0) {
-            setIsWorkoutComplete(false);
-        }
-    }, [totalSecondsPassed]);
-
-    const addWorkoutToHistory = workout => {
-        const totalQueueSeconds = workout.reduce((total, timer) => total + timer.totalSeconds, 0);
-        const workoutWithTitle = { totalQueueSeconds, title: workoutTitle, timers: workout };
-        setWorkoutsCompleted(prev => [...prev, workoutWithTitle]);
-        localStorage.setItem('workoutsCompleted', JSON.stringify([...prev, workoutWithTitle]));
-    };
-
     useEffect(() => {
         const savedWorkouts = JSON.parse(localStorage.getItem('workoutsCompleted') || '[]');
         setWorkoutsCompleted(savedWorkouts);
@@ -403,6 +390,25 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
             localStorage.setItem('workoutsCompleted', JSON.stringify(updatedWorkouts));
         }
     }, [totalQueueSeconds, totalSecondsPassed, workoutsCompleted, isWorkoutComplete, timersArray, workoutTitle]);
+
+    //updating workout completion state (and starting a new workout)
+
+    useEffect(() => {
+        if (totalQueueSeconds === totalSecondsPassed && timersArray.length > 0) {
+            setStatusQueue(STATUS.STOPPED);
+            setShowConfetti(true);
+            setIsWorkoutComplete(true);
+            setTimeout(() => {
+                setShowConfetti(false);
+            }, 7000);
+        }
+    }, [totalSecondsPassed, totalQueueSeconds, timersArray.length]);
+
+    useEffect(() => {
+        if (totalSecondsPassed === 0) {
+            setIsWorkoutComplete(false);
+        }
+    }, [totalSecondsPassed]);
 
     return (
         <TimersContext.Provider
@@ -450,6 +456,7 @@ export const TimersProvider = ({ children }: { children: ReactNode }) => {
                 isEditingTitle,
                 setIsEditingTitle,
                 handleTitleChange,
+                saveTimersToURL,
             }}
         >
             {children}

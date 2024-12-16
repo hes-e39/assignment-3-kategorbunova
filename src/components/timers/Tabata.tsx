@@ -1,11 +1,10 @@
-import { useContext } from 'react';
 import { useCountdownTimer } from '../../hooks/useCountdownTimer';
-import { useRepsSync } from '../../hooks/useRepsSync';
-import { useTimerSync } from '../../hooks/useTimerSync';
+// import { useRepsSync } from '../../hooks/useRepsSync';
+// import { useTimerSync } from '../../hooks/useTimerSync';
 import type { TimerProps } from '../../utils/TimerProps';
 import { convertToSeconds } from '../../utils/helpers';
 import { Button, Buttons, TimeDisplay, Timer, TimerContainer, TimerTitle } from '../../utils/styles';
-import { TimersContext } from '../../views/TimerProvider';
+// import { TimersContext } from '../../views/TimerProvider';
 
 const Tabata: React.FC<TimerProps> = ({ repInput, timeMinInputRest, timeSecInputRest, totalSeconds, isActive, isCurrent, isFinished, onFinish }) => {
     const totalSecondsRest = convertToSeconds(timeMinInputRest || 0, timeSecInputRest || 0) * Number(repInput);
@@ -17,13 +16,13 @@ const Tabata: React.FC<TimerProps> = ({ repInput, timeMinInputRest, timeSecInput
         Number(repInput),
         totalSecondsRest,
     );
-    const { totalSecondsPassed, currentTimerIndex, timersArray } = useContext(TimersContext);
+    // const { totalSecondsPassed, currentTimerIndex, timersArray } = useContext(TimersContext);
 
     const timerStyle = {
         color: isWorkPhase ? 'green' : 'blue', // Green for work, red for rest
     };
-    useTimerSync({ isCurrent, isFinished, totalSeconds, totalSecondsPassed, currentTimerIndex, timersArray, setSecondsPassed });
-    useRepsSync({ isCurrent, isFinished, totalSeconds, secondsPassed, oneRoundSeconds, setRepsRemaining });
+    // useTimerSync({ isCurrent, isFinished, totalSeconds, totalSecondsPassed, currentTimerIndex, timersArray, setSecondsPassed });
+    // useRepsSync({ isCurrent, isFinished, totalSeconds, secondsPassed, oneRoundSeconds, setRepsRemaining });
 
     return (
         <div className="App">
