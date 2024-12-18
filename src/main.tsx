@@ -16,7 +16,7 @@ const PageIndex = () => {
         <PageContainer>
             <Header>
                 <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', minWidth: '30rem' }}>
-                    <img src="public/logo.png" alt="Logo" width="50" height="50px" />
+                    <img src="public/logo.jpg" alt="Logo" width="50" height="50px" />
                     <StyledTitle>
                         <span style={{ color: 'white' }}>Tick</span>
                         <span style={{ color: colors.accent }}>Fit</span>
