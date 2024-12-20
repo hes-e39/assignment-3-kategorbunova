@@ -13,13 +13,13 @@ const LandingView = () => {
                 </div>
 
                 <div style={{ textAlign: 'center', display: 'block', margin: '3rem' }}>
-                    <img src="/Image1.jpg" alt="dumbbells floating" width="80%" />
+                    <img src="/assignment-3-kategorbunova/Image1.jpg" alt="dumbbells floating" width="80%" />
                 </div>
             </LandingBlock>
 
             <LandingBlock>
                 <div style={{ textAlign: 'center', display: 'block', margin: '3rem' }}>
-                    <img src="/Image2.jpg" alt="dumbbells floating" width="80%" />
+                    <img src="/assignment-3-kategorbunova/Image2.jpg" alt="dumbbells floating" width="80%" />
                 </div>
                 <div style={{ display: 'block', margin: 'auto 4rem', textAlign: 'right' }}>
                     <div style={{ fontSize: '1.5rem' }}>Track Your Progress</div>
