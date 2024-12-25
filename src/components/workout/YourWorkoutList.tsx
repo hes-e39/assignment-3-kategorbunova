@@ -105,16 +105,16 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                         {(!isFinished || (!isStarted && timerElapsedTime === 0)) && (
                                             <Buttons style={{ marginLeft: '1rem' }}>
                                                 <SmallButton onClick={() => editTimer(index)}>
-                                                    <img src="public/edit.jpg" alt="pencil edit icon" height="8px" />
+                                                    <img src="/assignment-3-kategorbunova/edit.jpg" alt="pencil edit icon" height="8px" />
                                                 </SmallButton>
                                                 {index !== 0 && (
                                                     <SmallButton onClick={() => moveTimerUp(index)}>
-                                                        <img src="public/chevron.jpg" alt="chevron up" height="8px" />
+                                                        <img src="/assignment-3-kategorbunova/chevron.jpg" alt="chevron up" height="8px" />
                                                     </SmallButton>
                                                 )}
                                                 {index !== timersArray.length - 1 && (
                                                     <SmallButton onClick={() => moveTimerDown(index)}>
-                                                        <img src="public/chevron.jpg" alt="chevron down" height="8px" />
+                                                        <img src="/assignment-3-kategorbunova/chevron.jpg" alt="chevron down" height="8px" />
                                                     </SmallButton>
                                                 )}
                                             </Buttons>
