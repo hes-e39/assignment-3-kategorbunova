@@ -113,7 +113,7 @@ const YourWorkoutList: React.FC<WorkoutTimersListProps> = ({
                                                     </SmallButton>
                                                 )}
                                                 {index !== timersArray.length - 1 && (
-                                                    <SmallButton onClick={() => moveTimerDown(index)}>
+                                                    <SmallButton onClick={() => moveTimerDown(index)} style={{ transform: 'rotate(180deg)' }}>
                                                         <img src="/assignment-3-kategorbunova/chevron.jpg" alt="chevron down" height="8px" />
                                                     </SmallButton>
                                                 )}
